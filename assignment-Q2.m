@@ -1,0 +1,31 @@
+m = [ 0.1;0.2;0.15 ];
+C = [0.005 -0.01 0.004;
+    -0.01 0.04 -0.002;
+    0.004 -0.002 0.023];
+AssetScenarios = mvnrnd(m, C, 100);
+p = Portfolio;
+p = setAssetMoments(p, m, C); 
+p = setDefaultConstraints(p);
+m1 = [0.1;0.2];
+C1 = [0.005 -0.01;-0.01 0.04];
+p1 = Portfolio;
+p1 = setAssetMoments(p1,m1,C1);
+p1 = setDefaultConstraints(p1);
+m2 = [0.1;0.15];
+C2 = [0.005 0.004;0.004 0.023];
+p2 = Portfolio;
+p2 = setAssetMoments(p2,m2,C2);
+p2 = setDefaultConstraints(p2);
+m3 = [0.2;0.15];
+C3 = [0.04 -0.002;-0.002 0.023];
+p3 = Portfolio;
+p3 = setAssetMoments(p3,m3,C3);
+p3 = setDefaultConstraints(p3);
+plotFrontier(p);
+total = sum(AssetScenarios,2);
+total = total(:,ones(3,1));
+weights = AssetScenarios./total;
+[PortRisk, PortReturn] = portstats(m', C, weights);
+hold on
+plotFrontier(p1),plotFrontier(p2),plotFrontier(p3),plot(PortRisk, PortReturn, '.k')
+legend("3 assets","pair-wise 1","pair-wise 2","pair-wise 3","points");
