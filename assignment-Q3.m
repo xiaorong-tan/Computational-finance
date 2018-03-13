@@ -11,7 +11,7 @@ ylabel("Return");
 [PRisk1, PRoR1, PWts1] = naiveMV(ERet, ECov, NPts);
 figure;
 plot(PRisk1,PRoR1);
-title("Efficient Frontier");
+title("Different ways to produce efficient frontier",);
 xlabel("Risk");
 ylabel("Return");
 

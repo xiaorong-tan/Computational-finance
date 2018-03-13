@@ -43,26 +43,41 @@ idxStocks = idxStocks(1:numStocks);
 avgReturnTrain = returnsTrain(:, idxStocks)*weights;
 avgReturnTest = returnsTest(:,idxStocks)*weights;
 % plot training set
-figure;
-hold on;
 grid on;
 box on;
-plot(ftseTrain,'g','LineWidth',2);
-plot(avgReturnTrain,'r','LineWidth',2);
-plot(returnsTrain,'b');
-xlabel('Days');
-ylabel('Returns');
-title('Sparse Index tracking (Training set)');
-legend('Returns of FTSE100','Returns of selected stocks','Returns of 22 stocks');
+ax1 = subplot(2,1,1);
+hold on;
+plot(ax1,ftseTrain,'g','LineWidth',3);
+plot(ax1,avgReturnTrain,'r','LineWidth',3);
+plot(ax1,returnsTrain,'b');
+xlabel(ax1,'Days');
+ylabel(ax1,'Returns');
+title(ax1,'Training set','FontSize',14);
+legend('Returns of FTSE100','Returns of selected stocks','Returns of 22 stocks','Location','northwest');
 % plot testing set
-figure;
+ax2 = subplot(2,1,2);
 hold on;
-grid on;
-box on;
-plot(ftseTest,'g','LineWidth',2);
-plot(avgReturnTest,'r','LineWidth',2);
-plot(returnsTest,'b');
-xlabel('Days');
-ylabel('Returns');
-title('Sparse Index tracking (Testing set)');
-legend('Returns of FTSE100','Returns of selected stocks','Returns of 22 stocks');
+plot(ax2,ftseTest,'g','LineWidth',3);
+plot(ax2,avgReturnTest,'r','LineWidth',3);
+plot(ax2,returnsTest,'b');
+xlabel(ax2,'Days');
+ylabel(ax2,'Returns');
+title(ax2,'Testing set','FontSize',14);
+% tracking error
+normalisedTest = zeros(n,numStocks);
+normalisedTest2 = zeros(n,numStocks);
+normalisedftseTest = zeros(n,1);
+normalisedAvgTest = zeros(n,1);
+tempAvgTest = returnsTest(:,idxStocks);
+for i = 1:numStocks
+    normalisedTest(:,i) = tempAvgTest(:,i) - mean(tempAvgTest(:,i));
+    normalisedTest(:,i) = normalisedTest(:,i) / std(normalisedTest(:,i));
+end
+for i = 1:n
+    normalisedftseTest(i) = ftseTest(i) - mean(ftseTest);
+    normalisedftseTest(i) = normalisedftseTest(i) / std(ftseTest);
+end
+for i = 1:n
+    normalisedAvgTest(i) = mean(normalisedTest(i,:));
+end
+[InfoRatio, TrackingError] = inforatio(normalisedAvgTest, normalisedftseTest)

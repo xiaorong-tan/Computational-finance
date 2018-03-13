@@ -46,24 +46,24 @@ efficientRetAverage = zeros(rows/2,1);
 for i = 1:rows/2
     efficientRetAverage(i,1) = mean(efficientRet(i,:));
 end
-colormap = summer(NPts);
+colormap = autumn(NPts);
 colormap = colormap(1:end,:);
 
 figure;
 box on;
 hold on;
 grid on;
-plot(naiveRet,'b');
-plot(efficientRetAverage,'g');
+plot(naiveRet,'b','LineWidth',2);
+plot(efficientRetAverage,'r','LineWidth',4);
 % efficientRet = fliplr(efficientRet);
 for i = 1:NPts
     plot(efficientRet(:,i),'LineWidth',1,'Color',colormap(i,:));
 end
 % efficientRet = fliplr(efficientRet);
-legend("Efficient returns","Naive returns","Mean of efficient returns");
-title("2 different returns");
-xlabel("Days");
-ylabel("Returns");
+legend("Naive 1/N returns","Average efficient returns","Efficient returns",'Location','northwest');
+title("Different returns of 3 stocks",'FontSize',16);
+xlabel("Days",'FontSize',14);
+ylabel("Returns",'FontSize',14);
 
 % calculate sharpe ratio
 riskFree = 0.2;
@@ -82,10 +82,9 @@ plot([1 NPts],[sharpeEfficientAverage sharpeEfficientAverage],'LineWidth',2,'Col
 sharpeEfficient = fliplr(sharpeEfficient);
 for i=1:NPts
     plot(i, sharpeEfficient(i), '.r', 'MarkerSize', 30, 'Color', colormap(i,:));
-    plot(i, sharpeEfficient(i), '.k', 'MarkerSize', 10);
 end
 sharpeEfficient = fliplr(sharpeEfficient);
 xlabel('Portfolio', 'FontSize', 18);
 ylabel('Ratio', 'FontSize', 18);
 title(strcat('Sharpe Ratio - Risk Free:', int2str(riskFree*100) ,'%' ), 'FontSize', 18);
-legend('Naive Portfolio', 'Efficient Portfolio Avg.', 'Efficient Portfolios');
+legend('Naive 1/N Portfolio', 'Efficient Portfolio Avg.', 'Efficient Portfolios');
