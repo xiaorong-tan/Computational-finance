@@ -2,32 +2,43 @@ stock1 = load("CCH.csv");
 stock2 = load("GFS.csv");
 stock3 = load("SKY.csv");
 [rows,cols] = size(stock1);
-return1 = zeros(rows,1);
-return2 = zeros(rows,1);
-return3 = zeros(rows,1);
-for i = 2:rows
+for i = 1:cols
+    stock1(:,i) = stock1(:,i) - mean(stock1(:,i));
+    stock1(:,i) = stock1(:,i) / std(stock1(:,i));
+    stock2(:,i) = stock2(:,i) - mean(stock2(:,i));
+    stock2(:,i) = stock2(:,i) / std(stock2(:,i));
+    stock3(:,i) = stock3(:,i) - mean(stock3(:,i));
+    stock3(:,i) = stock3(:,i) / std(stock3(:,i));
+end
+return1 = zeros(rows/2,1);
+return2 = zeros(rows/2,1);
+return3 = zeros(rows/2,1);
+returnT1 = zeros(rows/2,1);
+returnT2 = zeros(rows/2,1);
+returnT3 = zeros(rows/2,1);
+for i = 1:rows/2
     return1(i,1) = stock1(i,4) - stock1(1,4);
     return2(i,1) = stock2(i,4) - stock2(1,4);
     return3(i,1) = stock3(i,4) - stock3(1,4);
+end
+for i = 1:rows/2
+    returnT1(i,1) = stock1(rows/2+i,4) - stock1(rows/2+1,4);
+    returnT2(i,1) = stock2(rows/2+i,4) - stock2(rows/2+1,4);
+    returnT3(i,1) = stock3(rows/2+i,4) - stock3(rows/2+1,4);
 end
 % return
 trainRe1 = mean(return1(1:rows/2));
 trainRe2 = mean(return2(1:rows/2));
 trainRe3 = mean(return3(1:rows/2));
-testRe1 = mean(return1(rows/2+1:rows));
-testRe2 = mean(return2(rows/2+1:rows));
-testRe3 = mean(return3(rows/2+1:rows));
+testRe1 = mean(returnT1(1:rows/2));
+testRe2 = mean(returnT2(1:rows/2));
+testRe3 = mean(returnT3(1:rows/2));
 re = [return1 return2 return3];
+reT = [returnT1 returnT2 returnT3];
 trainRet = re(1:rows/2,:);
-testRet = re(rows/2+1:rows,:);
-for i = 1:3
-    trainRet(:,i) = trainRet(:,i) - mean(trainRet(:,i));
-    trainRet(:,i) = trainRet(:,i) / std(trainRet(:,i));
-    testRet(:,i) = testRet(:,i) - mean(testRet(:,i));
-    testRet(:,i) = testRet(:,i) / std(testRet(:,i));
-end
+testRet = reT(1:rows/2,:);
 ECov = cov(trainRet);
-NPts = 10;
+NPts = 20;
 ERet = [trainRe1 trainRe2 trainRe3]';
 [PRisk, PRoR, PWts] = naiveMV(ERet, ECov, NPts);
 %get the weights for one portfolio using naiive method (i.e 1/n)
