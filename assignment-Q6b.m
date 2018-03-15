@@ -1,25 +1,35 @@
 data = load('22stocks.csv');
 FTSE100 = load('FTSE100.csv');
-returns = zeros(758,22);
-ftse = zeros(758,1);
+ftseTrain = zeros(379,1);
+ftseTest = zeros(379,1);
 % calculate returns of 22 stocks, each column is one stock
+% training return
+returnsTrain = zeros(379,22);
+returnsTest = zeros(379,22);
 m = 0;
 for i = 1:22
-    for j = 2:758
-        returns(j,i) = data(j+m,4) - data(1+m,4);
+    for j = 1:379
+        returnsTrain(j,i) = data(j+m,4) - data(1+m,4);
     end
     m = m+758;
 end
-% returns of FTSE100
-for i = 2:758
-    ftse(i) = FTSE100(i) - FTSE100(1);
+% testing return
+m = 0;
+for i = 1:22
+    for j = 1:379
+        returnsTest(j,i) = data(379+j+m,4) - data(379+1+m,4);
+    end
+    m = m+758;
 end
-% split returns of 22 stocks to train set and test set
+% training returns of FTSE100
+for i = 1:379
+    ftseTrain(i) = FTSE100(i) - FTSE100(1);
+end
+% testing returns of FTSE100
+for i = 1:379
+    ftseTest(i) = FTSE100(379+i) - FTSE100(1+379);
+end
 n = 758/2;
-returnsTrain = returns(1:n,:);
-returnsTest = returns(n+1:758,:);
-ftseTrain = ftse(1:n);
-ftseTest = ftse(n+1:758);
 % get 5 stocks
 numStocks = 5;
 % using sparse index tracking to select 5 stocks
@@ -29,7 +39,7 @@ a = zeros(n,1);
 for i = 1:n
     a(i) = mean(returnsTrain(i,:));
 end
-taw = 100;
+taw = 250;
 cvx_begin
    variable x(22,1);
    minimize(norm((ftseTrain - returnsTrain*x),2) + norm((taw*x),1));
@@ -43,9 +53,10 @@ idxStocks = idxStocks(1:numStocks);
 avgReturnTrain = returnsTrain(:, idxStocks)*weights;
 avgReturnTest = returnsTest(:,idxStocks)*weights;
 % plot training set
+
+ax1 = subplot(2,1,1);
 grid on;
 box on;
-ax1 = subplot(2,1,1);
 hold on;
 plot(ax1,ftseTrain,'g','LineWidth',3);
 plot(ax1,avgReturnTrain,'r','LineWidth',3);
@@ -56,6 +67,8 @@ title(ax1,'Training set','FontSize',14);
 legend('Returns of FTSE100','Returns of selected stocks','Returns of 22 stocks','Location','northwest');
 % plot testing set
 ax2 = subplot(2,1,2);
+grid on;
+box on;
 hold on;
 plot(ax2,ftseTest,'g','LineWidth',3);
 plot(ax2,avgReturnTest,'r','LineWidth',3);
@@ -63,6 +76,7 @@ plot(ax2,returnsTest,'b');
 xlabel(ax2,'Days');
 ylabel(ax2,'Returns');
 title(ax2,'Testing set','FontSize',14);
+legend('Returns of FTSE100','Returns of selected stocks','Returns of 22 stocks','Location','northwest');
 % tracking error
 normalisedTest = zeros(n,numStocks);
 normalisedTest2 = zeros(n,numStocks);
